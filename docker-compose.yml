@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  truffle:
+    image: kikinteractive/truffle
+    build:
+      context: .
+    volumes:
+      - ./contracts:/code/contracts
+      - ./coverage:/code/coverage
+      - ./build:/code/build
+      - ./migrations:/code/migrations
+      - ./scripts:/code/scripts
+      - ./test:/code/test
+      - ./truffle.js:/code/truffle.js
+      - ./.babelrc:/code/.babelrc
+      - ./.solcover.js:/code/.solcover.js
+      - ./.git:/code/.git
+
