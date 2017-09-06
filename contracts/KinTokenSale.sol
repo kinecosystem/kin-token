@@ -127,9 +127,9 @@ contract KinTokenSale is Ownable, TokenHolder {
     ///
     // TODO add real values here.
     function initTokenGrants() private onlyOwner {
-        // Issue the remaining 60% to Kin Foundation's multisig wallet. A few days, after the token sale is finalized,
-        // these tokens will be loaded into the KinVestingTrustee smart contract, according to the white paper. Please
-        // note, that this is implied by setting a 0% vesting percent.
+        // Issue the remaining 60% to Kin Foundation's multisig wallet. In a few days, after the token sale is
+        // finalized, these tokens will be loaded into the KinVestingTrustee smart contract, according to the white
+        // paper. Please note, that this is implied by setting a 0% vesting percent.
         tokenGrantees.push(0xa8F769B88d6D74FB2Bd3912F6793F75625228baF);
         tokenGrants[0xa8F769B88d6D74FB2Bd3912F6793F75625228baF] = TokenGrant(60 * 100000000000 * TOKEN_DECIMALS, 0, 0,
             3 years, 1 days, 0);
@@ -266,8 +266,7 @@ contract KinTokenSale is Ownable, TokenHolder {
         for (uint i = lastGrantedIndex; i < endIndex; i++) {
             address grantee = tokenGrantees[i];
 
-            // Calculate how many tokens have been granted, vested, and issued
-            // such that: granted = vested + issued
+            // Calculate how many tokens have been granted, vested, and issued such that: granted = vested + issued.
             TokenGrant memory tokenGrant = tokenGrants[grantee];
             uint256 tokensGranted = tokenGrant.value.mul(tokensSold).div(MAX_TOKENS_SOLD);
             uint256 tokensVested = tokensGranted.mul(tokenGrant.percentVested).div(100);
@@ -278,8 +277,7 @@ contract KinTokenSale is Ownable, TokenHolder {
                 issueTokens(grantee, tokensIssued);
             }
 
-            // Transfer vested tokens that have yet to be transferred to vesting trustee,
-            // and initialize grant.
+            // Transfer vested tokens that have yet to be transferred to vesting trustee, and initialize grant.
             if (tokensVested > 0) {
                 issueTokens(trustee, tokensVested);
                 trustee.grant(grantee, tokensVested, now.add(tokenGrant.startOffset), now.add(tokenGrant.cliffOffset),
