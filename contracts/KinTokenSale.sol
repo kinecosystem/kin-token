@@ -81,6 +81,8 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public constant GRANT_BATCH_SIZE = 10;
 
     // Post-TDE multisig addresses.
+    //
+    // TODO: add real addresses here.
     address public constant KIN_FOUNDATION_ADDRESS = 0xa8F769B88d6D74FB2Bd3912F6793F75625228baF;
     address public constant KIK_ADDRESS = 0x7a029DC995f87B5cA060975b9A8A1b4bdB33cDC5;
 
@@ -127,7 +129,7 @@ contract KinTokenSale is Ownable, TokenHolder {
 
     /// @dev Initialize token grants.
     ///
-    // TODO add real values here.
+    /// TODO: add real values here.
     function initTokenGrants() private onlyOwner {
         // Issue the remaining 60% to Kin Foundation's multisig wallet. A few days, after the token sale is finalized,
         // these tokens will be loaded into the KinVestingTrustee smart contract, according to the white paper. Please
