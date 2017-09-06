@@ -66,8 +66,6 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public hardParticipationCap = 5000 * WEI_PER_USD;
 
     // Vesting information for special addresses:
-    //  - Kin Foundation
-    //  - Kik
     struct TokenGrant {
         uint256 value;
         uint256 startOffset;
@@ -81,6 +79,10 @@ contract KinTokenSale is Ownable, TokenHolder {
     mapping (address => TokenGrant) public tokenGrants;
     uint256 public lastGrantedIndex = 0;
     uint256 public constant GRANT_BATCH_SIZE = 10;
+
+    // Post-TDE multisig addresses.
+    address public constant KIN_FOUNDATION_ADDRESS = 0xa8F769B88d6D74FB2Bd3912F6793F75625228baF;
+    address public constant KIK_ADDRESS = 0x7a029DC995f87B5cA060975b9A8A1b4bdB33cDC5;
 
     event TokensIssued(address indexed _to, uint256 _tokens);
 
@@ -130,14 +132,12 @@ contract KinTokenSale is Ownable, TokenHolder {
         // Issue the remaining 60% to Kin Foundation's multisig wallet. A few days, after the token sale is finalized,
         // these tokens will be loaded into the KinVestingTrustee smart contract, according to the white paper. Please
         // note, that this is implied by setting a 0% vesting percent.
-        tokenGrantees.push(0xa8F769B88d6D74FB2Bd3912F6793F75625228baF);
-        tokenGrants[0xa8F769B88d6D74FB2Bd3912F6793F75625228baF] = TokenGrant(60 * 100000000000 * TOKEN_DECIMALS, 0, 0,
-            3 years, 1 days, 0);
+        tokenGrantees.push(KIN_FOUNDATION_ADDRESS);
+        tokenGrants[KIN_FOUNDATION_ADDRESS] = TokenGrant(60 * 100000000000 * TOKEN_DECIMALS, 0, 0, 3 years, 1 days, 0);
 
         // Kik, 30%
-        tokenGrantees.push(0x7a029DC995f87B5cA060975b9A8A1b4bdB33cDC5);
-        tokenGrants[0x7a029DC995f87B5cA060975b9A8A1b4bdB33cDC5] = TokenGrant(30 * 100000000000 * TOKEN_DECIMALS, 0, 0,
-            120 weeks, 12 weeks, 100);
+        tokenGrantees.push(KIK_ADDRESS);
+        tokenGrants[KIK_ADDRESS] = TokenGrant(30 * 100000000000 * TOKEN_DECIMALS, 0, 0, 120 weeks, 12 weeks, 100);
     }
 
     /// @dev Adds a Kin token vesting grant.
