@@ -53,7 +53,7 @@ contract VestingTrustee is Ownable {
         external onlyOwner {
 
         require(_to != address(0));
-        require(_to != address(this)); // Don't allow holder to be this contract.
+        require(_to != address(this)); // Protect this contract from receiving a grant.
         require(_value > 0);
 
         // Require that every holder can be granted tokens only once.
@@ -93,11 +93,10 @@ contract VestingTrustee is Ownable {
         // Grant must be revokable.
         require(grant.revokable);
 
-        // Calculate amount of remaining tokens that are still available to be
-        // returned to owner.
+        // Calculate amount of remaining tokens that can still be returned.
         uint256 refund = grant.value.sub(grant.transferred);
 
-        // Remove grant information.
+        // Remove the grant.
         delete grants[_holder];
 
         // Update total vesting amount and transfer previously calculated tokens to owner.
@@ -143,16 +142,16 @@ contract VestingTrustee is Ownable {
         // Calculate amount of days in entire vesting period.
         uint256 vestingDays = _grant.end.sub(_grant.start);
 
-        // Calculate and return installments that have passed according to vesting days that have passed.
+        // Calculate and return the number of tokens according to vesting days that have passed.
         return _grant.value.mul(installmentsPast.mul(_grant.installmentLength)).div(vestingDays);
     }
 
-    /// @dev Unlock vested tokens and transfer them to their holder.
+    /// @dev Unlock vested tokens and transfer them to the grantee.
     /// @return a uint256 Representing the amount of vested tokens transferred to their holder.
     function unlockVestedTokens() external {
         Grant storage grant = grants[msg.sender];
 
-        // Require that there will be funds left in grant to tranfser to holder.
+        // Make sure the grant has tokens available.
         require(grant.value != 0);
 
         // Get the total amount of vested tokens, acccording to grant.
@@ -167,8 +166,7 @@ contract VestingTrustee is Ownable {
             return;
         }
 
-        // Update transferred and total vesting amount,
-        // then transfer remaining vested funds to holder.
+        // Update transferred and total vesting amount, then transfer remaining vested funds to holder.
         grant.transferred = grant.transferred.add(transferable);
         totalVesting = totalVesting.sub(transferable);
         kin.transfer(msg.sender, transferable);

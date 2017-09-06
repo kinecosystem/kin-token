@@ -4,7 +4,6 @@ import './ERC20.sol';
 import './Ownable.sol';
 
 /// @title Token holder contract.
-/// @dev Allows to transfer out any accidently sent ERC20 tokens.
 contract TokenHolder is Ownable {
     /// @dev Allow the owner to transfer out any accidentally sent ERC20 tokens.
     /// @param _tokenAddress address The address of the ERC20 contract.
