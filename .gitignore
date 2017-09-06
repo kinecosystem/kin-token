@@ -1,0 +1,9 @@
+/node_modules
+/build
+/.DS_Store
+/coverage
+/coverageEnv
+/coverage.json
+/allFiredEvents
+/scTopics
+Unified.sol
