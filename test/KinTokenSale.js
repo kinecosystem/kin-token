@@ -333,7 +333,7 @@ contract('KinTokenSale', (accounts) => {
             beforeEach(async () => {
                 let tokenGranteesLength = (await sale.getTokenGranteesLength()).toNumber();
 
-                for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength; ++i) {
+                for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength - 1; ++i) {
                     const address = '0x'.padEnd(42, i);
                     await sale.addTokenGrant(address, 1000);
                 }
@@ -376,7 +376,7 @@ contract('KinTokenSale', (accounts) => {
                 beforeEach(async () => {
                     let tokenGranteesLength = (await sale.getTokenGranteesLength()).toNumber();
 
-                    for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength; ++i) {
+                    for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength - 1; ++i) {
                         const address = '0x'.padEnd(42, i);
                         await sale.addTokenGrant(address, 1000);
                     }
