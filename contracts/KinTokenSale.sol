@@ -78,6 +78,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     address[] public tokenGrantees;
     mapping (address => TokenGrant) public tokenGrants;
     uint256 public lastGrantedIndex = 0;
+    uint256 public constant MAX_TOKEN_GRANTEES = 100;
     uint256 public constant GRANT_BATCH_SIZE = 10;
 
     // Post-TDE multisig addresses.
@@ -148,6 +149,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     function addTokenGrant(address _grantee, uint256 _value) external onlyOwner {
         require(_grantee != address(0));
         require(_value > 0);
+        require(tokenGrantees.length + 1 <= MAX_TOKEN_GRANTEES);
 
         // Verify the grant doesn't already exist.
         require(tokenGrants[_grantee].value == 0);

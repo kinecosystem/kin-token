@@ -106,6 +106,7 @@ contract('KinTokenSale', (accounts) => {
     ];
 
     const GRANTS = KIN_TOKEN_GRANTS.concat(PRESALE_TOKEN_GRANTS);
+    const MAX_TOKEN_GRANTEES = 100;
     const GRANT_BATCH_SIZE = 10;
 
     let now;
@@ -327,6 +328,23 @@ contract('KinTokenSale', (accounts) => {
                 await testTokenGrantExists(sale, tokenGrant);
             }
         });
+
+        context(`with ${MAX_TOKEN_GRANTEES} grants`, async () => {
+            beforeEach(async () => {
+                let tokenGranteesLength = (await sale.getTokenGranteesLength()).toNumber();
+
+                for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength; ++i) {
+                    const address = '0x'.padEnd(42, i);
+                    await sale.addTokenGrant(address, 1000);
+                }
+
+                assert.equal((await sale.getTokenGranteesLength()).toNumber(), MAX_TOKEN_GRANTEES);
+            });
+
+            it('hould not allow granting another grant', async () => {
+                await expectRevert(sale.addTokenGrant(accounts[0], 5000));;
+            });
+        });
     });
 
     describe('deleteTokenGrant', async () => {
@@ -352,6 +370,23 @@ contract('KinTokenSale', (accounts) => {
         context('with pre-sale grants', async () => {
             beforeEach(async () => {
                 await addPresaleTokenGrants(sale);
+            });
+
+            context(`with ${MAX_TOKEN_GRANTEES} grants`, async () => {
+                beforeEach(async () => {
+                    let tokenGranteesLength = (await sale.getTokenGranteesLength()).toNumber();
+
+                    for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength; ++i) {
+                        const address = '0x'.padEnd(42, i);
+                        await sale.addTokenGrant(address, 1000);
+                    }
+
+                    assert.equal((await sale.getTokenGranteesLength()).toNumber(), MAX_TOKEN_GRANTEES);
+                });
+
+                it('should delete a single token grant', async () => {
+                    await testDeleteTokenGrant(sale, PRESALE_TOKEN_GRANTS[5]);
+                });
             });
 
             it('should delete a single token grant', async () => {
