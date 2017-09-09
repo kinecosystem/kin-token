@@ -44,7 +44,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     // KIN to 1 wei ratio.
     uint256 public constant KIN_PER_WEI = KIN_PER_USD / WEI_PER_USD;
 
-    // Sale start and end time.
+    // Sale start and end timestamps.
     uint256 public constant SALE_DURATION = 14 days;
     uint256 public startTime;
     uint256 public endTime;
