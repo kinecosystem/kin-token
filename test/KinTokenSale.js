@@ -333,15 +333,14 @@ contract('KinTokenSale', (accounts) => {
             beforeEach(async () => {
                 let tokenGranteesLength = (await sale.getTokenGranteesLength()).toNumber();
 
-                for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength - 1; ++i) {
-                    const address = '0x'.padEnd(42, i);
-                    await sale.addTokenGrant(address, 1000);
+                for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength; ++i) {
+                    await sale.addTokenGrant(`0x${i + 1}`, 1000);
                 }
 
                 assert.equal((await sale.getTokenGranteesLength()).toNumber(), MAX_TOKEN_GRANTEES);
             });
 
-            it('hould not allow granting another grant', async () => {
+            it('should not allow granting another grant', async () => {
                 await expectRevert(sale.addTokenGrant(accounts[0], 5000));;
             });
         });
@@ -376,9 +375,8 @@ contract('KinTokenSale', (accounts) => {
                 beforeEach(async () => {
                     let tokenGranteesLength = (await sale.getTokenGranteesLength()).toNumber();
 
-                    for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength - 1; ++i) {
-                        const address = '0x'.padEnd(42, i);
-                        await sale.addTokenGrant(address, 1000);
+                    for (let i = 0; i < MAX_TOKEN_GRANTEES - tokenGranteesLength; ++i) {
+                        await sale.addTokenGrant(`0x${i + 1}`, 1000);
                     }
 
                     assert.equal((await sale.getTokenGranteesLength()).toNumber(), MAX_TOKEN_GRANTEES);
