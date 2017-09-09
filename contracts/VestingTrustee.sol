@@ -148,7 +148,6 @@ contract VestingTrustee is Ownable {
     }
 
     /// @dev Unlock vested tokens and transfer them to the grantee.
-    /// @return a uint256 Representing the amount of vested tokens transferred to their holder.
     function unlockVestedTokens() external {
         Grant storage grant = grants[msg.sender];
 
