@@ -91,18 +91,14 @@ contract KinTokenSale is Ownable, TokenHolder {
 
     /// @dev Reverts if called when not during sale.
     modifier onlyDuringSale() {
-        if (tokensSold >= MAX_TOKENS_SOLD || now < startTime || now >= endTime) {
-            revert();
-        }
+        require(!saleEnded() && now >= startTime);
 
         _;
     }
 
     /// @dev Reverts if called before sale ends.
     modifier onlyAfterSale() {
-        if (!(tokensSold >= MAX_TOKENS_SOLD || now >= endTime)) {
-            revert();
-        }
+        require(saleEnded());
 
         _;
     }
@@ -300,6 +296,12 @@ contract KinTokenSale is Ownable, TokenHolder {
         kin.mint(_recipient, _tokens);
 
         TokensIssued(_recipient, _tokens);
+    }
+
+    /// @dev Returns whether the sale has ended.
+    /// @return bool Whether the sale has ended or not.
+    function saleEnded() private constant returns (bool) {
+        return tokensSold >= MAX_TOKENS_SOLD || now >= endTime;
     }
 
     /// @dev Requests to transfer control of the Kin token contract to a new owner.
