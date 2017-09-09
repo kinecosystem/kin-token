@@ -43,7 +43,7 @@ contract Ownable {
         OwnershipRequested(msg.sender, newOwnerCandidate);
     }
 
-    /// @dev Accept ownership transfer. This method needs to be called by the perviously proposed owner.
+    /// @dev Accept ownership transfer. This method needs to be called by the previously proposed owner.
     function acceptOwnership() external onlyOwnerCandidate {
         address previousOwner = owner;
 
