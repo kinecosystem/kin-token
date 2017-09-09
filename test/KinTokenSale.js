@@ -19,24 +19,24 @@ contract('KinTokenSale', (accounts) => {
     let DEFAULT_GAS_PRICE = new BigNumber(100000000000);
     let GAS_COST_ERROR = process.env['SOLIDITY_COVERAGE'] ? 30000000000000000 : 0;
 
-    const TOKEN_DECIMALS = 10 ** 18;
+    const TOKEN_UNIT = 10 ** 18;
 
     // Maximum number of tokens in circulation.
-    const MAX_TOKENS = new BigNumber(10 ** 13).mul(TOKEN_DECIMALS);
+    const MAX_TOKENS = new BigNumber(10 ** 13).mul(TOKEN_UNIT);
 
     // Maximum tokens sold here.
-    const MAX_TOKENS_SOLD = new BigNumber(512192121951).mul(TOKEN_DECIMALS);
-    const WEI_PER_USD = new BigNumber(TOKEN_DECIMALS).div(360).floor().toNumber();
+    const MAX_TOKENS_SOLD = new BigNumber(512192121951).mul(TOKEN_UNIT);
+    const WEI_PER_USD = new BigNumber(TOKEN_UNIT).div(360).floor().toNumber();
 
     // This represents the USD price per one KIN, such MAX_TOKENS_SOLD * KIN_PER_USD is the $75M cap.
-    const KIN_PER_USD = 6829 * TOKEN_DECIMALS;
+    const KIN_PER_USD = 6829 * TOKEN_UNIT;
     const KIN_PER_WEI = new BigNumber(KIN_PER_USD).div(WEI_PER_USD).floor().toNumber();
 
     const TIER_1_CAP = 100000 * WEI_PER_USD;
     const TIER_2_CAP = Math.pow(2, 256) - 1; // Maximum uint256 value
     const TIER_2_CAP_BIGNUMBER = new BigNumber(2).pow(256).minus(1);
 
-    const HUNDRED_BILLION_KIN = Math.pow(10, 11) * TOKEN_DECIMALS;
+    const HUNDRED_BILLION_KIN = Math.pow(10, 11) * TOKEN_UNIT;
 
     const KIN_TOKEN_GRANTS = [
         {grantee: '0xa8f769b88d6d74fb2bd3912f6793f75625228baf', value: 60 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 0, endOffset: 3 * YEAR, installmentLength: 1 * DAY, percentVested: 0},
@@ -47,62 +47,62 @@ contract('KinTokenSale', (accounts) => {
         {grantee: '0xebfbfbdb8cbef890e8ca0143b5d9ab3fe15056c8', value: 2 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
         {grantee: '0x499d16bf3420f5d5d5fbdd9ca82ff863d505dcdd', value: 2 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
         {grantee: '0x06767930c343a330f8f04680cd2e3f5568feaf0a', value: 1 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xf3bf7e748e954441bbbd4446062554f881bf89d5', value: 88235294100 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x1ed4304324baf24e826f267861bfbbad50228599', value: 4334 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x6f46cf5569aefa1acc1009290c8e043747172d89', value: 1473 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x90e63c3d53e0ea496845b7a03ec7548b70014a91', value: 6722 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x53d284357ec70ce289d6d64134dfac8e511c8a3d', value: 2800 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xc257274276a4e539741ca11b590b9447b26a8051', value: 1851 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xf27daff52c38b2c373ad2b9392652ddf433303c4', value: 1970 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x3d2e397f94e415d7773e72e44d5b5338a99e77d9', value: 5591 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xb8487eed31cf5c559bf3f4edd166b949553d0d11', value: 9581 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x00a651d43b6e209f5ada45a35f92efc0de3a5184', value: 3264 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x1b3cb81e51011b549d78bf720b0d924ac763a7c2', value: 605 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x6f52730dba7b02beefcaf0d6998c9ae901ea04f9', value: 6218 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x35da6abcb08f2b6164fe380bb6c47bd8f2304d55', value: 92 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x51f9c432a4e59ac86282d6adab4c2eb8919160eb', value: 2092 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x8f7147aaa34d9ae583a7aa803e8df9bd6b4cc185', value: 4046 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x8eb3fa7907ad2ef4c7e3ba4b1d2f2aac6f4b5ae6', value: 2504 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x3bf86ed8a3153ec933786a02ac090301855e576b', value: 4956 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xc4832ffa32bd12a1696e3fe2ff2b44fc89d3e683', value: 7405 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xbf09d77048e270b662330e9486b38b43cd781495', value: 1552 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x3de8c14c8e7a956f5cc4d82beff749ee65fdc358', value: 5032 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xab5801a7d398351b8be11c439e05c5b3259aec9b', value: 8640 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xdb6fd484cfa46eeeb73c71edee823e4812f9e2e1', value: 4249 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x9d2bfc36106f038250c01801685785b16c86c60d', value: 529 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x2b241f037337eb4acc61849bd272ac133f7cdf4b', value: 2429 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xb794f5ea0ba39494ce839613fffba74279579268', value: 469 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xe853c56864a2ebe4576a807d26fdc4a0ada51919', value: 6967 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x281055afc982d96fab65b3a49cac8b878184cb16', value: 3369 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xa1065e30ef94e4a89c2ef83afaa991af45bd7799', value: 3491 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x2543fc6d6a746cdc395d43b2f3b0e33e469f8f7f', value: 5197 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x9dc61cd3c76c82ed0b566005351fd55cd8e578e3', value: 1333 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xb6ce0f17952116884cd558e828c1f7e6ca027b68', value: 6198 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xed3835eaf9367f7943b6520e27ea6c23144d4a86', value: 372 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x6ba997a443426dbd1b79363b1f0dcd1f66b2a2c7', value: 3077 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x33e1c178e83f60d0ffa9b8780c6355dc42b77f9d', value: 1824 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xfdd913a83b30110a01f2f9e5f8cf4f20a2a60c6e', value: 9937 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x18bc87142f7449af54caa2c1b460e5ca24f3cab3', value: 3928 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xd5461272b55ca660ab8475bad6099ff66704bce3', value: 6911 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xae179f378f525437ec1b1357a015f5be2b499c81', value: 1574 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x1a5637275c7dafdd3eb0f5625fd5d59a1425bba4', value: 3231 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x009db764931f8a3ed2e20dc3af1373e4d33852e9', value: 9647 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x96107e5b992475d3862e7faa5450d4dbf36e82dc', value: 3309 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x7db259da13930642259312210a7049250670eec4', value: 8662 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xa1c92760c857e42aeb4732d643be5c5441bf0880', value: 5675 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x38205adbdfd56e76077b350685b595790d40f5eb', value: 9163 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x8b9ff9757d7a195e3ee48e760d5dceea6b7c22f1', value: 1618 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x4c1c6cd03f35a0aec1a8f634951f19ca85d21c8b', value: 2057 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x167a9333bf582556f35bd4d16a7e80e191aa6476', value: 6953 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xa7e4fecddc20d83f36971b67e13f1abc98dfcfa6', value: 6577 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x9f1de00776811f916790be357f1cabf6ac1eca65', value: 2964 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xfbb1b73c4f0bda4f67dca266ce6ef42f520fbb98', value: 4329 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xdc76cd25977e0a5ae17155770273ad58648900d3', value: 8433 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x5c4aa3c0e7f6917ee6c1204d85a01f08a80e6dd0', value: 2926 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x7d04d2edc058a1afc761d9c99ae4fc5c85d4c8a6', value: 6882 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x1706d193862da7f8c746aae63d514df93dfa5dbf', value: 7958 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0xcafb10ee663f465f9d10588ac44ed20ed608c11e', value: 9283 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
-        {grantee: '0x316775a60ccc8147532a32eee332e7b944ca4ae6', value: 8402 * TOKEN_DECIMALS, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50}
+        {grantee: '0xf3bf7e748e954441bbbd4446062554f881bf89d5', value: 88235294100 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x1ed4304324baf24e826f267861bfbbad50228599', value: 4334 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x6f46cf5569aefa1acc1009290c8e043747172d89', value: 1473 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x90e63c3d53e0ea496845b7a03ec7548b70014a91', value: 6722 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x53d284357ec70ce289d6d64134dfac8e511c8a3d', value: 2800 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xc257274276a4e539741ca11b590b9447b26a8051', value: 1851 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xf27daff52c38b2c373ad2b9392652ddf433303c4', value: 1970 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x3d2e397f94e415d7773e72e44d5b5338a99e77d9', value: 5591 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xb8487eed31cf5c559bf3f4edd166b949553d0d11', value: 9581 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x00a651d43b6e209f5ada45a35f92efc0de3a5184', value: 3264 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x1b3cb81e51011b549d78bf720b0d924ac763a7c2', value: 605 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x6f52730dba7b02beefcaf0d6998c9ae901ea04f9', value: 6218 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x35da6abcb08f2b6164fe380bb6c47bd8f2304d55', value: 92 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x51f9c432a4e59ac86282d6adab4c2eb8919160eb', value: 2092 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x8f7147aaa34d9ae583a7aa803e8df9bd6b4cc185', value: 4046 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x8eb3fa7907ad2ef4c7e3ba4b1d2f2aac6f4b5ae6', value: 2504 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x3bf86ed8a3153ec933786a02ac090301855e576b', value: 4956 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xc4832ffa32bd12a1696e3fe2ff2b44fc89d3e683', value: 7405 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xbf09d77048e270b662330e9486b38b43cd781495', value: 1552 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x3de8c14c8e7a956f5cc4d82beff749ee65fdc358', value: 5032 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xab5801a7d398351b8be11c439e05c5b3259aec9b', value: 8640 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xdb6fd484cfa46eeeb73c71edee823e4812f9e2e1', value: 4249 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x9d2bfc36106f038250c01801685785b16c86c60d', value: 529 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x2b241f037337eb4acc61849bd272ac133f7cdf4b', value: 2429 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xb794f5ea0ba39494ce839613fffba74279579268', value: 469 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xe853c56864a2ebe4576a807d26fdc4a0ada51919', value: 6967 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x281055afc982d96fab65b3a49cac8b878184cb16', value: 3369 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xa1065e30ef94e4a89c2ef83afaa991af45bd7799', value: 3491 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x2543fc6d6a746cdc395d43b2f3b0e33e469f8f7f', value: 5197 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x9dc61cd3c76c82ed0b566005351fd55cd8e578e3', value: 1333 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xb6ce0f17952116884cd558e828c1f7e6ca027b68', value: 6198 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xed3835eaf9367f7943b6520e27ea6c23144d4a86', value: 372 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x6ba997a443426dbd1b79363b1f0dcd1f66b2a2c7', value: 3077 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x33e1c178e83f60d0ffa9b8780c6355dc42b77f9d', value: 1824 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xfdd913a83b30110a01f2f9e5f8cf4f20a2a60c6e', value: 9937 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x18bc87142f7449af54caa2c1b460e5ca24f3cab3', value: 3928 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xd5461272b55ca660ab8475bad6099ff66704bce3', value: 6911 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xae179f378f525437ec1b1357a015f5be2b499c81', value: 1574 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x1a5637275c7dafdd3eb0f5625fd5d59a1425bba4', value: 3231 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x009db764931f8a3ed2e20dc3af1373e4d33852e9', value: 9647 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x96107e5b992475d3862e7faa5450d4dbf36e82dc', value: 3309 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x7db259da13930642259312210a7049250670eec4', value: 8662 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xa1c92760c857e42aeb4732d643be5c5441bf0880', value: 5675 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x38205adbdfd56e76077b350685b595790d40f5eb', value: 9163 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x8b9ff9757d7a195e3ee48e760d5dceea6b7c22f1', value: 1618 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x4c1c6cd03f35a0aec1a8f634951f19ca85d21c8b', value: 2057 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x167a9333bf582556f35bd4d16a7e80e191aa6476', value: 6953 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xa7e4fecddc20d83f36971b67e13f1abc98dfcfa6', value: 6577 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x9f1de00776811f916790be357f1cabf6ac1eca65', value: 2964 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xfbb1b73c4f0bda4f67dca266ce6ef42f520fbb98', value: 4329 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xdc76cd25977e0a5ae17155770273ad58648900d3', value: 8433 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x5c4aa3c0e7f6917ee6c1204d85a01f08a80e6dd0', value: 2926 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x7d04d2edc058a1afc761d9c99ae4fc5c85d4c8a6', value: 6882 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x1706d193862da7f8c746aae63d514df93dfa5dbf', value: 7958 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0xcafb10ee663f465f9d10588ac44ed20ed608c11e', value: 9283 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50},
+        {grantee: '0x316775a60ccc8147532a32eee332e7b944ca4ae6', value: 8402 * TOKEN_UNIT, startOffset: 0, cliffOffset: 1 * YEAR, endOffset: 1 * YEAR, installmentLength: 1 * DAY, percentVested: 50}
     ];
 
     const GRANTS = KIN_TOKEN_GRANTS.concat(PRESALE_TOKEN_GRANTS);
@@ -681,8 +681,8 @@ contract('KinTokenSale', (accounts) => {
                             let tokenGrant = await getGrant(trustee, grant.grantee);
 
                             let vestedTokens = await calcVestedTokens(grant);
-                            console.log(`\texpecting ${vestedTokens.vested / TOKEN_DECIMALS} vested KIN...`);
-                            console.log(`\texpecting ${vestedTokens.transferred / TOKEN_DECIMALS} issued KIN...`);
+                            console.log(`\texpecting ${vestedTokens.vested / TOKEN_UNIT} vested KIN...`);
+                            console.log(`\texpecting ${vestedTokens.transferred / TOKEN_UNIT} issued KIN...`);
 
                             // Test granted and vested tokens.
                             assert.equal((await token.balanceOf(grant.grantee)).toNumber(), vestedTokens.transferred);
@@ -783,8 +783,8 @@ contract('KinTokenSale', (accounts) => {
             // NOTE: We have to convert the new cap number to string before converting them to BigNumber, since JS
             // standard Number type doesn't support more than 15 significant digits.
             if (t.hasOwnProperty('hardParticipationCap')) {
-                console.log(`\tsetting hard participation cap from ${(await sale.hardParticipationCap()).div(TOKEN_DECIMALS)} ` +
-                    `to ${t.hardParticipationCap / TOKEN_DECIMALS}`
+                console.log(`\tsetting hard participation cap from ${(await sale.hardParticipationCap()).div(TOKEN_UNIT)} ` +
+                    `to ${t.hardParticipationCap / TOKEN_UNIT}`
                 );
 
                 // Value is assumed to be of BigNumber type.
@@ -796,7 +796,7 @@ contract('KinTokenSale', (accounts) => {
             let tokens = new BigNumber(t.value.toString()).mul(KIN_PER_WEI);
 
             console.log(`\t[${++i} / ${transactions.length}] expecting account ${t.from} to buy up to ` +
-                `${tokens.toNumber() / TOKEN_DECIMALS} KIN for ${t.value / TOKEN_DECIMALS} ETH`
+                `${tokens.toNumber() / TOKEN_UNIT} KIN for ${t.value / TOKEN_UNIT} ETH`
             );
 
             // Cache original balances before executing the transaction.
@@ -975,12 +975,12 @@ contract('KinTokenSale', (accounts) => {
                 // Test if transaction execution is unallowed and prevented for UNREGISTERED participants.
                 context('unregistered participants', async () => {
                     [
-                        { from: accounts[1], value: 1 * TOKEN_DECIMALS },
-                        { from: accounts[2], value: 2 * TOKEN_DECIMALS },
-                        { from: accounts[3], value: 0.0001 * TOKEN_DECIMALS },
-                        { from: accounts[4], value: 10 * TOKEN_DECIMALS }
+                        { from: accounts[1], value: 1 * TOKEN_UNIT },
+                        { from: accounts[2], value: 2 * TOKEN_UNIT },
+                        { from: accounts[3], value: 0.0001 * TOKEN_UNIT },
+                        { from: accounts[4], value: 10 * TOKEN_UNIT }
                     ].forEach((t) => {
-                        it(`should not allow to participate with ${t.value / TOKEN_DECIMALS} ETH`, async () => {
+                        it(`should not allow to participate with ${t.value / TOKEN_UNIT} ETH`, async () => {
                             assert.equal((await sale.participationCaps(t.from)).toNumber(), 0);
 
                             await expectRevert(method(sale, t.value));
@@ -1019,141 +1019,141 @@ contract('KinTokenSale', (accounts) => {
                     [
                         // Sanity test: test sending funds from account owner.
                         [
-                            { from: owner, value: 1 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 1 * TOKEN_DECIMALS },
-                            { from: owner, value: 1 * TOKEN_DECIMALS },
-                            { from: owner, value: 3 * TOKEN_DECIMALS },
+                            { from: owner, value: 1 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 1 * TOKEN_UNIT },
+                            { from: owner, value: 1 * TOKEN_UNIT },
+                            { from: owner, value: 3 * TOKEN_UNIT },
                         ],
                         // Only tier 1 participants:
                         [
-                            { from: tier1Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 150 * TOKEN_DECIMALS }
+                            { from: tier1Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 150 * TOKEN_UNIT }
                         ],
                         // Tier 1 + Tier 2 participants:
                         [
-                            { from: tier1Participant1, value: 1 * TOKEN_DECIMALS },
+                            { from: tier1Participant1, value: 1 * TOKEN_UNIT },
 
-                            { from: tier1Participant2, value: 0.5 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 10 * TOKEN_DECIMALS },
+                            { from: tier1Participant2, value: 0.5 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 10 * TOKEN_UNIT },
 
-                            { from: tier2Participant1, value: 100 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 0.01 * TOKEN_DECIMALS },
+                            { from: tier2Participant1, value: 100 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 0.01 * TOKEN_UNIT },
 
-                            { from: tier1Participant3, value: 2.5 * TOKEN_DECIMALS },
+                            { from: tier1Participant3, value: 2.5 * TOKEN_UNIT },
 
-                            { from: tier1Participant2, value: 0.01 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 1200 * TOKEN_DECIMALS },
+                            { from: tier1Participant2, value: 0.01 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 1200 * TOKEN_UNIT },
 
-                            { from: tier1Participant1,  value: 0.01 * TOKEN_DECIMALS }
+                            { from: tier1Participant1,  value: 0.01 * TOKEN_UNIT }
                         ],
                         // Another Tier 1 + Tier 2 participants:
                         [
-                            { from: tier1Participant1, value: 5 * TOKEN_DECIMALS },
+                            { from: tier1Participant1, value: 5 * TOKEN_UNIT },
 
-                            { from: tier1Participant2, value: 100 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 100 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 2 * TOKEN_DECIMALS },
+                            { from: tier1Participant2, value: 100 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 100 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 2 * TOKEN_UNIT },
 
-                            { from: tier2Participant2, value: 1000 * TOKEN_DECIMALS },
+                            { from: tier2Participant2, value: 1000 * TOKEN_UNIT },
 
-                            { from: tier1Participant3, value: 1.3 * TOKEN_DECIMALS },
+                            { from: tier1Participant3, value: 1.3 * TOKEN_UNIT },
 
-                            { from: tier1Participant2, value: 0.01 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 100 * TOKEN_DECIMALS },
+                            { from: tier1Participant2, value: 0.01 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 100 * TOKEN_UNIT },
 
-                            { from: tier1Participant1, value: 0.01 * TOKEN_DECIMALS }
+                            { from: tier1Participant1, value: 0.01 * TOKEN_UNIT }
                         ],
                         // Participation cap should be reached by the middle of this transaction list, and then we raise
                         // it and continue the remaining transactions:
                         [
-                            { from: tier1Participant1, value: 11 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 12 * TOKEN_DECIMALS },
-                            { from: tier1Participant3, value: 13 * TOKEN_DECIMALS },
+                            { from: tier1Participant1, value: 11 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 12 * TOKEN_UNIT },
+                            { from: tier1Participant3, value: 13 * TOKEN_UNIT },
 
-                            { from: tier2Participant1, value: 21 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 211 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 22 * TOKEN_DECIMALS },
+                            { from: tier2Participant1, value: 21 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 211 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 22 * TOKEN_UNIT },
 
-                            { from: tier1Participant1, value: 5000 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1000000 * TOKEN_DECIMALS }, // 1M
+                            { from: tier1Participant1, value: 5000 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1000000 * TOKEN_UNIT }, // 1M
 
                             { hardParticipationCap: TIER_2_CAP_BIGNUMBER }, // Practically infinity
 
-                            { from: tier1Participant1, value: 10000 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 121 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1000000 * TOKEN_DECIMALS }, // 1M
-                            { from: tier1Participant3, value: 131 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 5000000 * TOKEN_DECIMALS }, // 5M
-                            { from: tier1Participant2, value: 1212 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 8000000 * TOKEN_DECIMALS } // 8M
+                            { from: tier1Participant1, value: 10000 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 121 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1000000 * TOKEN_UNIT }, // 1M
+                            { from: tier1Participant3, value: 131 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 5000000 * TOKEN_UNIT }, // 5M
+                            { from: tier1Participant2, value: 1212 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 8000000 * TOKEN_UNIT } // 8M
                         ],
                         // Another similar test to above, just with different transactions.
                         [
-                            { from: tier2Participant1, value: 100 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 1000 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 10000 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 100 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 0.1 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 0.01 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 10 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 1000000 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1000 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 999 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 9999 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 99 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 10 * TOKEN_DECIMALS },
-                            { from: tier1Participant3, value: 10 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier1Participant3, value: 100 * TOKEN_DECIMALS },
-                            { from: tier1Participant3, value: 100000 * TOKEN_DECIMALS },
+                            { from: tier2Participant1, value: 100 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 1000 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 10000 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 100 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 0.1 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 0.01 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 10 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 1000000 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1000 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 999 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 9999 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 99 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 10 * TOKEN_UNIT },
+                            { from: tier1Participant3, value: 10 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier1Participant3, value: 100 * TOKEN_UNIT },
+                            { from: tier1Participant3, value: 100000 * TOKEN_UNIT },
 
                             { hardParticipationCap: TIER_2_CAP_BIGNUMBER },
 
-                            { from: tier2Participant1, value: 1000000 * TOKEN_DECIMALS }, // 1M
-                            { from: tier1Participant2, value: 121 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 5000000 * TOKEN_DECIMALS }, // 5M
-                            { from: tier1Participant3, value: 131 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 8000000 * TOKEN_DECIMALS }, // 50M
-                            { from: tier1Participant1, value: 10000 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 1212 * TOKEN_DECIMALS }
+                            { from: tier2Participant1, value: 1000000 * TOKEN_UNIT }, // 1M
+                            { from: tier1Participant2, value: 121 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 5000000 * TOKEN_UNIT }, // 5M
+                            { from: tier1Participant3, value: 131 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 8000000 * TOKEN_UNIT }, // 50M
+                            { from: tier1Participant1, value: 10000 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 1212 * TOKEN_UNIT }
                         ],
                         // Test starting with hard cap at the lowest value possible: 1,
                         // then rising to 5K.
                         [
                             { hardParticipationCap: new BigNumber(1) },
 
-                            { from: tier2Participant1, value: 100 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 1000 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 10000 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 100 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 0.1 * TOKEN_DECIMALS },
-                            { from: tier1Participant1, value: 0.01 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 10 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 1000000 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1000 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 999 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 9999 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 99 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 10 * TOKEN_DECIMALS },
-                            { from: tier1Participant3, value: 10 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 1 * TOKEN_DECIMALS },
-                            { from: tier1Participant3, value: 100 * TOKEN_DECIMALS },
-                            { from: tier1Participant3, value: 100000 * TOKEN_DECIMALS },
+                            { from: tier2Participant1, value: 100 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 1000 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 10000 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 100 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 0.1 * TOKEN_UNIT },
+                            { from: tier1Participant1, value: 0.01 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 10 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 1000000 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1000 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 999 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 9999 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 99 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 10 * TOKEN_UNIT },
+                            { from: tier1Participant3, value: 10 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 1 * TOKEN_UNIT },
+                            { from: tier1Participant3, value: 100 * TOKEN_UNIT },
+                            { from: tier1Participant3, value: 100000 * TOKEN_UNIT },
 
                             { hardParticipationCap: new BigNumber(5).mul(1000) }, // 5K
 
-                            { from: tier2Participant1, value: 1000000 * TOKEN_DECIMALS }, // 1M
-                            { from: tier1Participant2, value: 121 * TOKEN_DECIMALS },
-                            { from: tier2Participant1, value: 5000000 * TOKEN_DECIMALS }, // 5M
-                            { from: tier1Participant3, value: 131 * TOKEN_DECIMALS },
-                            { from: tier2Participant2, value: 8000000 * TOKEN_DECIMALS }, // 50M
-                            { from: tier1Participant1, value: 10000 * TOKEN_DECIMALS },
-                            { from: tier1Participant2, value: 1212 * TOKEN_DECIMALS }
+                            { from: tier2Participant1, value: 1000000 * TOKEN_UNIT }, // 1M
+                            { from: tier1Participant2, value: 121 * TOKEN_UNIT },
+                            { from: tier2Participant1, value: 5000000 * TOKEN_UNIT }, // 5M
+                            { from: tier1Participant3, value: 131 * TOKEN_UNIT },
+                            { from: tier2Participant2, value: 8000000 * TOKEN_UNIT }, // 50M
+                            { from: tier1Participant1, value: 10000 * TOKEN_UNIT },
+                            { from: tier1Participant2, value: 1212 * TOKEN_UNIT }
                         ],
                     ].forEach((transactions) => {
                         context(`${JSON.stringify(transactions).slice(0, 200)}...`, async function() {
@@ -1459,8 +1459,8 @@ contract('KinTokenSale', (accounts) => {
                 let transactions = [];
                 for (let i = 0; i < centerIndex; ++i) {
                     // NOTE value is (i+1) such that first member will send 1 ETH (0 ETH will fail).
-                    transactions.push({from: tier1Participants[i], value: (i + 1) * TOKEN_DECIMALS});
-                    transactions.push({from: tier2Participants[i], value: (i + 1) * 10 * TOKEN_DECIMALS});
+                    transactions.push({from: tier1Participants[i], value: (i + 1) * TOKEN_UNIT});
+                    transactions.push({from: tier2Participants[i], value: (i + 1) * 10 * TOKEN_UNIT});
                 }
 
                 await verifyTransactions(sale, fundRecipient, create, transactions);
@@ -1487,12 +1487,12 @@ contract('KinTokenSale', (accounts) => {
                         // NOTE value is (i+1) such that first member will send 1 ETH (0 ETH will fail).
 
                         // Tier 1 participants send a negligble amount of ETH (0.01-0.25 ETH).
-                        transactions.push({from: tier1Participants[i], value: (i + 1) * 0.01 * TOKEN_DECIMALS});
+                        transactions.push({from: tier1Participants[i], value: (i + 1) * 0.01 * TOKEN_UNIT});
 
                         // Tier 2 participants start with sending 1-25 ETH every iteration,
                         // Then after the hard cap has been lifted, send 500-12500 ETH.
                         let tier2Value = j < liftHardCapIndex ? 1 : 500;
-                        transactions.push({from: tier2Participants[i], value: (i + 1) * tier2Value * TOKEN_DECIMALS});
+                        transactions.push({from: tier2Participants[i], value: (i + 1) * tier2Value * TOKEN_UNIT});
                     }
                 }
 

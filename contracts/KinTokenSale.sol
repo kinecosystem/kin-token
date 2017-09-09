@@ -21,16 +21,16 @@ contract KinTokenSale is Ownable, TokenHolder {
     // Received funds are forwarded to this address.
     address public fundingRecipient;
 
-    // Kin token decimals.
+    // Kin token unit.
     // Using same decimal value as ETH (makes ETH-KIN conversion much easier).
     // This is the same as in Kin token contract.
-    uint256 public constant TOKEN_DECIMALS = 10 ** 18;
+    uint256 public constant TOKEN_UNIT = 10 ** 18;
 
     // Maximum number of tokens in circulation: 10 trillion.
-    uint256 public constant MAX_TOKENS = 10 ** 13 * TOKEN_DECIMALS;
+    uint256 public constant MAX_TOKENS = 10 ** 13 * TOKEN_UNIT;
 
     // Maximum tokens offered in the sale.
-    uint256 public constant MAX_TOKENS_SOLD = 512192121951 * TOKEN_DECIMALS;
+    uint256 public constant MAX_TOKENS_SOLD = 512192121951 * TOKEN_UNIT;
 
     // Wei to 1 USD ratio.
     //
@@ -39,7 +39,7 @@ contract KinTokenSale is Ownable, TokenHolder {
 
     // KIN to 1 USD ratio,
     // such MAX_TOKENS_SOLD * KIN_PER_USD is the $75M cap.
-    uint256 public constant KIN_PER_USD = 6829 * TOKEN_DECIMALS;
+    uint256 public constant KIN_PER_USD = 6829 * TOKEN_UNIT;
 
     // KIN to 1 wei ratio.
     uint256 public constant KIN_PER_WEI = KIN_PER_USD / WEI_PER_USD;
