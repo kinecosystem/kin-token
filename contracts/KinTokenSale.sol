@@ -273,8 +273,8 @@ contract KinTokenSale is Ownable, TokenHolder {
             // Calculate how many tokens have been granted, vested, and issued such that: granted = vested + issued.
             TokenGrant memory tokenGrant = tokenGrants[grantee];
             uint256 tokensGranted = tokenGrant.value.mul(tokensSold).div(MAX_TOKENS_SOLD);
-            uint256 tokensVested = tokensGranted.mul(tokenGrant.percentVested).div(100);
-            uint256 tokensIssued = tokensGranted.sub(tokensVested);
+            uint256 tokensVesting = tokensGranted.mul(tokenGrant.percentVested).div(100);
+            uint256 tokensIssued = tokensGranted.sub(tokensVesting);
 
             // Transfer issued tokens that have yet to be transferred to grantee.
             if (tokensIssued > 0) {
@@ -282,9 +282,9 @@ contract KinTokenSale is Ownable, TokenHolder {
             }
 
             // Transfer vested tokens that have yet to be transferred to vesting trustee, and initialize grant.
-            if (tokensVested > 0) {
-                issueTokens(trustee, tokensVested);
-                trustee.grant(grantee, tokensVested, now.add(tokenGrant.startOffset), now.add(tokenGrant.cliffOffset),
+            if (tokensVesting > 0) {
+                issueTokens(trustee, tokensVesting);
+                trustee.grant(grantee, tokensVesting, now.add(tokenGrant.startOffset), now.add(tokenGrant.cliffOffset),
                     now.add(tokenGrant.endOffset), tokenGrant.installmentLength, true);
             }
 

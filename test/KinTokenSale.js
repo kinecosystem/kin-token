@@ -660,10 +660,10 @@ contract('KinTokenSale', (accounts) => {
                         let totalTokensIssued = (await sale.tokensSold()).mul(MAX_TOKENS).div(MAX_TOKENS_SOLD);
 
                         let tokensGranted = totalTokensIssued.mul(grant.value).div(MAX_TOKENS).floor();
-                        let tokensVested = tokensGranted.mul(grant.percentVested).div(100).floor().toNumber();
-                        let tokensTransferred = tokensGranted.sub(tokensVested).toNumber();
+                        let tokensVesting = tokensGranted.mul(grant.percentVested).div(100).floor().toNumber();
+                        let tokensTransferred = tokensGranted.sub(tokensVesting).toNumber();
 
-                        return {vested: tokensVested, transferred: tokensTransferred};
+                        return {vested: tokensVesting, transferred: tokensTransferred};
                     }
 
                     beforeEach(async () => {
