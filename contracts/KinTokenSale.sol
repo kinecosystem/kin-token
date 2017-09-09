@@ -132,11 +132,11 @@ contract KinTokenSale is Ownable, TokenHolder {
         // finalized, these tokens will be loaded into the KinVestingTrustee smart contract, according to the white
         // paper. Please note, that this is implied by setting a 0% vesting percent.
         tokenGrantees.push(KIN_FOUNDATION_ADDRESS);
-        tokenGrants[KIN_FOUNDATION_ADDRESS] = TokenGrant(60 * MAX_TOKENS.div(100), 0, 0, 3 years, 1 days, 0);
+        tokenGrants[KIN_FOUNDATION_ADDRESS] = TokenGrant(MAX_TOKENS.mul(60).div(100), 0, 0, 3 years, 1 days, 0);
 
         // Kik, 30%
         tokenGrantees.push(KIK_ADDRESS);
-        tokenGrants[KIK_ADDRESS] = TokenGrant(30 * MAX_TOKENS.div(100), 0, 0, 120 weeks, 12 weeks, 100);
+        tokenGrants[KIK_ADDRESS] = TokenGrant(MAX_TOKENS.mul(30).div(100), 0, 0, 120 weeks, 12 weeks, 100);
     }
 
     /// @dev Adds a Kin token vesting grant.
