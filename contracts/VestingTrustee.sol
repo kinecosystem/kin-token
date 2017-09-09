@@ -40,7 +40,8 @@ contract VestingTrustee is Ownable {
         kin = _kin;
     }
 
-    /// @dev Grant tokens to a specified address.
+    /// @dev Grant tokens to a specified address. Please note, that the trustee must have enough ungranted tokens to
+    /// accomodate the new grant. Otherwise, the call with fail.
     /// @param _to address The holder address.
     /// @param _value uint256 The amount of tokens to be granted.
     /// @param _start uint256 The beginning of the vesting period.
