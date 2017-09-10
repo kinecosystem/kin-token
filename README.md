@@ -55,9 +55,6 @@ $ docker-compose run --rm truffle npm test test/VestingTrustee.js
 ```
 
 
-[build img]: https://travis-ci.org/kikinteractive/kin-token.svg?branch=master
-[build status]: https://travis-ci.org/kikinteractive/kin-token
-
 [kin token]: https://kin.kik.com
 [ethereum]: https://www.ethereum.org/
 
