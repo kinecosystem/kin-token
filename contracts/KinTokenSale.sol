@@ -38,7 +38,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public constant WEI_PER_USD = uint256(1 ether) / 360;
 
     // KIN to 1 USD ratio,
-    // such MAX_TOKENS_SOLD * KIN_PER_USD is the $75M cap.
+    // such that MAX_TOKENS_SOLD / KIN_PER_USD is the $75M cap.
     uint256 public constant KIN_PER_USD = 6829 * TOKEN_UNIT;
 
     // KIN to 1 wei ratio.
@@ -56,10 +56,10 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public constant TIER_1_CAP = 100000 * WEI_PER_USD;
     uint256 public constant TIER_2_CAP = uint256(-1); // Maximum uint256 value
 
-    // Accumulated amount each participant have contributed so far.
+    // Accumulated amount each participant has contributed so far.
     mapping (address => uint256) public participationHistory;
 
-    // Maximum amount that each particular is allowed to contribute (in WEI).
+    // Maximum amount that each participant is allowed to contribute (in WEI).
     mapping (address => uint256) public participationCaps;
 
     // Maximum amount ANYBODY is currently allowed to contribute.
