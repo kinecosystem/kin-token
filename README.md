@@ -1,4 +1,4 @@
-# Kin Token Contracts [![Build Status][build img]][build status] [![Coverage Status][coverage img]][coverage status] 
+# Kin Token Contracts [![Build Status][build img]][build status]
 
 Here be smart contracts for the [Kin token][kin token].
 
@@ -54,23 +54,9 @@ $ make build test
 $ docker-compose run --rm truffle npm test test/VestingTrustee.js
 ```
 
-### Code Coverage
 
-```bash
-# This will create a coverage/ directory.
-# To see the coverage, open the generated index.html in your browser.
-$ make coverage
-
-# This will submit the coverage results to codecov.io.
-# NOTE: works in the master branch only.
-$ make codecov
-```
-
-
-[build img]: https://travis-ci.com/kikinteractive/kin.svg?token=RqXzJLB6ziXiVJ1zjt8N&branch=master
-[build status]: https://travis-ci.com/kikinteractive/kin
-[coverage status]: https://codecov.io/github/kikinteractive/kin
-[coverage img]: https://codecov.io/github/kikinteractive/kin/coverage.svg?token=EQR7Ipvfbp&branch=master
+[build img]: https://travis-ci.org/kikinteractive/kin-token.svg?branch=master
+[build status]: https://travis-ci.org/kikinteractive/kin-token
 
 [kin token]: https://kin.kik.com
 [ethereum]: https://www.ethereum.org/
