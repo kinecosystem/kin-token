@@ -1,4 +1,4 @@
-# Kin Token Contracts [![Build Status][build img]][build status]
+# Kin Token Contracts
 
 Here be smart contracts for the [Kin token][kin token].
 
