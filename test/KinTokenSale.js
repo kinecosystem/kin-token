@@ -1475,9 +1475,9 @@ contract('KinTokenSale', (accounts) => {
                 // Generate transactions, and mix tier 1 and tier 2 transactions together.
                 let transactions = [];
                 let liftHardCapIndex = 75;
-                for (let j = 0; j < 100; ++j) {
+                for (let j = 0; j < 50; ++j) {
                     // Lift hard cap to infinity during the sale.
-                    if (j === 70) {
+                    if (j === 40) {
                         console.log(`\tGenerating hard participation cap change...`);
                         transactions.push({ hardParticipationCap: TIER_2_CAP_BIGNUMBER });
                     }
