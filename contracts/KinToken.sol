@@ -22,17 +22,13 @@ contract KinToken is Ownable, BasicToken, TokenHolder {
     event MintingEnded();
 
     modifier onlyDuringMinting() {
-        if (!isMinting) {
-          revert();
-        }
+        require(isMinting);
 
         _;
     }
 
     modifier onlyAfterMinting() {
-        if (isMinting) {
-          revert();
-        }
+        require(!isMinting);
 
         _;
     }

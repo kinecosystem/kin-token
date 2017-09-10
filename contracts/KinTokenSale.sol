@@ -21,16 +21,16 @@ contract KinTokenSale is Ownable, TokenHolder {
     // Received funds are forwarded to this address.
     address public fundingRecipient;
 
-    // Kin token decimals.
+    // Kin token unit.
     // Using same decimal value as ETH (makes ETH-KIN conversion much easier).
     // This is the same as in Kin token contract.
-    uint256 public constant TOKEN_DECIMALS = 10 ** 18;
+    uint256 public constant TOKEN_UNIT = 10 ** 18;
 
     // Maximum number of tokens in circulation: 10 trillion.
-    uint256 public constant MAX_TOKENS = 10 ** 13 * TOKEN_DECIMALS;
+    uint256 public constant MAX_TOKENS = 10 ** 13 * TOKEN_UNIT;
 
     // Maximum tokens offered in the sale.
-    uint256 public constant MAX_TOKENS_SOLD = 512192121951 * TOKEN_DECIMALS;
+    uint256 public constant MAX_TOKENS_SOLD = 512192121951 * TOKEN_UNIT;
 
     // Wei to 1 USD ratio.
     //
@@ -38,13 +38,13 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public constant WEI_PER_USD = uint256(1 ether) / 360;
 
     // KIN to 1 USD ratio,
-    // such MAX_TOKENS_SOLD * KIN_PER_USD is the $75M cap.
-    uint256 public constant KIN_PER_USD = 6829 * TOKEN_DECIMALS;
+    // such that MAX_TOKENS_SOLD / KIN_PER_USD is the $75M cap.
+    uint256 public constant KIN_PER_USD = 6829 * TOKEN_UNIT;
 
     // KIN to 1 wei ratio.
     uint256 public constant KIN_PER_WEI = KIN_PER_USD / WEI_PER_USD;
 
-    // Sale start, end blocks (time ranges)
+    // Sale start and end timestamps.
     uint256 public constant SALE_DURATION = 14 days;
     uint256 public startTime;
     uint256 public endTime;
@@ -56,10 +56,10 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public constant TIER_1_CAP = 100000 * WEI_PER_USD;
     uint256 public constant TIER_2_CAP = uint256(-1); // Maximum uint256 value
 
-    // Accumulated amount each participant have contributed so far.
+    // Accumulated amount each participant has contributed so far.
     mapping (address => uint256) public participationHistory;
 
-    // Maximum amount that each particular is allowed to contribute (in WEI).
+    // Maximum amount that each participant is allowed to contribute (in WEI).
     mapping (address => uint256) public participationCaps;
 
     // Maximum amount ANYBODY is currently allowed to contribute.
@@ -78,6 +78,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     address[] public tokenGrantees;
     mapping (address => TokenGrant) public tokenGrants;
     uint256 public lastGrantedIndex = 0;
+    uint256 public constant MAX_TOKEN_GRANTEES = 100;
     uint256 public constant GRANT_BATCH_SIZE = 10;
 
     // Post-TDE multisig addresses.
@@ -90,18 +91,14 @@ contract KinTokenSale is Ownable, TokenHolder {
 
     /// @dev Reverts if called when not during sale.
     modifier onlyDuringSale() {
-        if (tokensSold >= MAX_TOKENS_SOLD || now < startTime || now >= endTime) {
-            revert();
-        }
+        require(!saleEnded() && now >= startTime);
 
         _;
     }
 
     /// @dev Reverts if called before sale ends.
     modifier onlyAfterSale() {
-        if (!(tokensSold >= MAX_TOKENS_SOLD || now >= endTime)) {
-            revert();
-        }
+        require(saleEnded());
 
         _;
     }
@@ -135,11 +132,11 @@ contract KinTokenSale is Ownable, TokenHolder {
         // finalized, these tokens will be loaded into the KinVestingTrustee smart contract, according to the white
         // paper. Please note, that this is implied by setting a 0% vesting percent.
         tokenGrantees.push(KIN_FOUNDATION_ADDRESS);
-        tokenGrants[KIN_FOUNDATION_ADDRESS] = TokenGrant(60 * 100000000000 * TOKEN_DECIMALS, 0, 0, 3 years, 1 days, 0);
+        tokenGrants[KIN_FOUNDATION_ADDRESS] = TokenGrant(MAX_TOKENS.mul(60).div(100), 0, 0, 3 years, 1 days, 0);
 
         // Kik, 30%
         tokenGrantees.push(KIK_ADDRESS);
-        tokenGrants[KIK_ADDRESS] = TokenGrant(30 * 100000000000 * TOKEN_DECIMALS, 0, 0, 120 weeks, 12 weeks, 100);
+        tokenGrants[KIK_ADDRESS] = TokenGrant(MAX_TOKENS.mul(30).div(100), 0, 0, 120 weeks, 12 weeks, 100);
     }
 
     /// @dev Adds a Kin token vesting grant.
@@ -148,6 +145,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     function addTokenGrant(address _grantee, uint256 _value) external onlyOwner {
         require(_grantee != address(0));
         require(_value > 0);
+        require(tokenGrantees.length + 1 <= MAX_TOKEN_GRANTEES);
 
         // Verify the grant doesn't already exist.
         require(tokenGrants[_grantee].value == 0);
@@ -271,8 +269,8 @@ contract KinTokenSale is Ownable, TokenHolder {
             // Calculate how many tokens have been granted, vested, and issued such that: granted = vested + issued.
             TokenGrant memory tokenGrant = tokenGrants[grantee];
             uint256 tokensGranted = tokenGrant.value.mul(tokensSold).div(MAX_TOKENS_SOLD);
-            uint256 tokensVested = tokensGranted.mul(tokenGrant.percentVested).div(100);
-            uint256 tokensIssued = tokensGranted.sub(tokensVested);
+            uint256 tokensVesting = tokensGranted.mul(tokenGrant.percentVested).div(100);
+            uint256 tokensIssued = tokensGranted.sub(tokensVesting);
 
             // Transfer issued tokens that have yet to be transferred to grantee.
             if (tokensIssued > 0) {
@@ -280,9 +278,9 @@ contract KinTokenSale is Ownable, TokenHolder {
             }
 
             // Transfer vested tokens that have yet to be transferred to vesting trustee, and initialize grant.
-            if (tokensVested > 0) {
-                issueTokens(trustee, tokensVested);
-                trustee.grant(grantee, tokensVested, now.add(tokenGrant.startOffset), now.add(tokenGrant.cliffOffset),
+            if (tokensVesting > 0) {
+                issueTokens(trustee, tokensVesting);
+                trustee.grant(grantee, tokensVesting, now.add(tokenGrant.startOffset), now.add(tokenGrant.cliffOffset),
                     now.add(tokenGrant.endOffset), tokenGrant.installmentLength, true);
             }
 
@@ -298,6 +296,12 @@ contract KinTokenSale is Ownable, TokenHolder {
         kin.mint(_recipient, _tokens);
 
         TokensIssued(_recipient, _tokens);
+    }
+
+    /// @dev Returns whether the sale has ended.
+    /// @return bool Whether the sale has ended or not.
+    function saleEnded() private constant returns (bool) {
+        return tokensSold >= MAX_TOKENS_SOLD || now >= endTime;
     }
 
     /// @dev Requests to transfer control of the Kin token contract to a new owner.
