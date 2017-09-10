@@ -63,7 +63,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     mapping (address => uint256) public participationCaps;
 
     // Maximum amount ANYBODY is currently allowed to contribute.
-    uint256 public hardParticipationCap = 5000 * WEI_PER_USD;
+    uint256 public hardParticipationCap = 4393 * WEI_PER_USD;
 
     // Vesting information for special addresses:
     struct TokenGrant {
