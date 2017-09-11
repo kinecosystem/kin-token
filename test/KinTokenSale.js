@@ -39,8 +39,8 @@ contract('KinTokenSale', (accounts) => {
     const HUNDRED_BILLION_KIN = Math.pow(10, 11) * TOKEN_UNIT;
 
     const KIN_TOKEN_GRANTS = [
-        {grantee: '0x56aE76573EC54754bC5B6A8cBF04bBd7Dc86b0A0', value: 60 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 0, endOffset: 3 * YEAR, installmentLength: 1 * DAY, percentVested: 0},
-        {grantee: '0x3bf4BbE253153678E9E8E540395C22BFf7fCa87d', value: 30 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 0, endOffset: 120 * WEEK, installmentLength: 12 * WEEK, percentVested: 100}
+        {grantee: '0x56ae76573ec54754bc5b6a8cbf04bbd7dc86b0a0', value: 60 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 0, endOffset: 3 * YEAR, installmentLength: 1 * DAY, percentVested: 0},
+        {grantee: '0x3bf4bbe253153678e9e8e540395c22bff7fca87d', value: 30 * HUNDRED_BILLION_KIN, startOffset: 0, cliffOffset: 0, endOffset: 120 * WEEK, installmentLength: 12 * WEEK, percentVested: 100}
     ];
 
     const PRESALE_TOKEN_GRANTS = [
