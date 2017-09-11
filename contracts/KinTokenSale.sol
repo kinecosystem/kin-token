@@ -30,7 +30,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public constant MAX_TOKENS = 10 ** 13 * TOKEN_UNIT;
 
     // Maximum tokens offered in the sale.
-    uint256 public constant MAX_TOKENS_SOLD = 512192121951 * TOKEN_UNIT;
+    uint256 public constant MAX_TOKENS_SOLD = 512195121951 * TOKEN_UNIT;
 
     // Wei to 1 USD ratio.
     //
