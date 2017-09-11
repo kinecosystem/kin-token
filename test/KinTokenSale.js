@@ -25,7 +25,7 @@ contract('KinTokenSale', (accounts) => {
     const MAX_TOKENS = new BigNumber(10 ** 13).mul(TOKEN_UNIT);
 
     // Maximum tokens sold here.
-    const MAX_TOKENS_SOLD = new BigNumber(512192121951).mul(TOKEN_UNIT);
+    const MAX_TOKENS_SOLD = new BigNumber(512195121951).mul(TOKEN_UNIT);
     const WEI_PER_USD = new BigNumber(TOKEN_UNIT).div(360).floor().toNumber();
 
     // This represents the USD price per one KIN, such MAX_TOKENS_SOLD * KIN_PER_USD is the $75M cap.
