@@ -33,9 +33,7 @@ contract KinTokenSale is Ownable, TokenHolder {
     uint256 public constant MAX_TOKENS_SOLD = 512195121951 * TOKEN_UNIT;
 
     // Wei to 1 USD ratio.
-    //
-    // TODO update to the real ETH price before sale launch.
-    uint256 public constant WEI_PER_USD = uint256(1 ether) / 360;
+    uint256 public constant WEI_PER_USD = uint256(1 ether) / 289;
 
     // KIN to 1 USD ratio,
     // such that MAX_TOKENS_SOLD / KIN_PER_USD is the $75M cap.
