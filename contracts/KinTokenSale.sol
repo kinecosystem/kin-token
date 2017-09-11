@@ -84,8 +84,8 @@ contract KinTokenSale is Ownable, TokenHolder {
     // Post-TDE multisig addresses.
     //
     // TODO: add real addresses here.
-    address public constant KIN_FOUNDATION_ADDRESS = 0xa8F769B88d6D74FB2Bd3912F6793F75625228baF;
-    address public constant KIK_ADDRESS = 0x7a029DC995f87B5cA060975b9A8A1b4bdB33cDC5;
+    address public constant KIN_FOUNDATION_ADDRESS = 0x56aE76573EC54754bC5B6A8cBF04bBd7Dc86b0A0;
+    address public constant KIK_ADDRESS = 0x3bf4BbE253153678E9E8E540395C22BFf7fCa87d;
 
     event TokensIssued(address indexed _to, uint256 _tokens);
 
