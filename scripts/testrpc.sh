@@ -9,5 +9,5 @@ if testrpc_running $port; then
   echo "Using existing testrpc instance"
 else
   echo "Starting our own testrpc instance" 
-  eval testrpc "$accounts" -u 0 -u 1  
+  eval testrpc "$accounts" -u 0 -u 1 -p "$port"
 fi
