@@ -1,4 +1,4 @@
-/// This code was taken from: https://github.com/ConsenSys. Please do not change or refactor.
+/// This code was taken from: https://github.com/gnosis/MultiSigWallet
 
 pragma solidity ^0.4.15;
 
@@ -151,7 +151,7 @@ contract MultiSigWallet {
 
     /// @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
     /// @param owner Address of owner to be replaced.
-    /// @param owner Address of new owner.
+    /// @param newOwner Address of new owner.
     function replaceOwner(address owner, address newOwner)
         public
         onlyWallet
@@ -222,6 +222,8 @@ contract MultiSigWallet {
     /// @param transactionId Transaction ID.
     function executeTransaction(uint transactionId)
         public
+        ownerExists(msg.sender)
+        confirmed(transactionId, msg.sender)
         notExecuted(transactionId)
     {
         if (isConfirmed(transactionId)) {

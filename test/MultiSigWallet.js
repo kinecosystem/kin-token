@@ -94,7 +94,7 @@ contract('MultiSigWallet', (accounts) => {
             it('should be initialized with 0 balance', async () => {
                 let wallet = await MultiSigWalletMock.new(owners, requirement);
 
-                assert.equal(web3.eth.getBalance(wallet.address), 0);
+                assert.equal(web3.eth.getBalance(wallet.address).toNumber(), 0);
             });
 
             it('should initialize owners', async () => {
@@ -207,6 +207,7 @@ contract('MultiSigWallet', (accounts) => {
                     await token.mint(wallet.address, initKINBalance);
                     await token.endMinting();
                     assert.equal((await token.balanceOf(wallet.address)).toNumber(), initKINBalance);
+                    assert.equal((await token.balanceOf(receiver)).toNumber(), 0);
                 });
 
                 describe('submitTransaction', async () => {
@@ -299,6 +300,178 @@ contract('MultiSigWallet', (accounts) => {
                     });
                 });
 
+                describe('executeTransaction', async () => {
+                    if (spec.requirement == 1) {
+                        return;
+                    }
+
+                    let receiverBalance = 0;
+
+                    beforeEach(async () => {
+                        receiverBalance = web3.eth.getBalance(receiver).toNumber();
+                    });
+
+                    const isConfirmedBy = async (transactionId, address) => {
+                        for (const confirmer of (await wallet.getConfirmations(transactionId))) {
+                            if (confirmer == address) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    };
+
+                    const isExecuted = async (transactionId) => {
+                        let transactionInfo = await wallet.transactions(transactionId);
+
+                        return transactionInfo[3];
+                    };
+
+                    context('executed', async () => {
+                        let transactionId;
+                        let confirmations;
+
+                        beforeEach(async () => {
+                            await wallet.submitTransaction(receiver, value, [], {from: sender});
+                            transactionId = await wallet.transactionId();
+
+                            confirmations = 1;
+
+                            for (let i = 1; i < spec.owners.length && confirmations < spec.requirement; i++) {
+                                await wallet.confirmTransaction(transactionId, {from: spec.owners[i]});
+                                confirmations++;
+
+                                assert.equal(await isConfirmedBy(transactionId, spec.owners[i]), true);
+                                assert.equal(await isExecuted(transactionId), confirmations == spec.requirement);
+                            }
+
+                            assert.equal(web3.eth.getBalance(wallet.address).toNumber(), initETHBalance - value);
+                            assert.equal(web3.eth.getBalance(receiver).toNumber(), receiverBalance + value);
+                            assert.equal(await wallet.isConfirmed(transactionId), true);
+                            assert.equal(await isExecuted(transactionId), true);
+                        });
+
+                        it('should throw, if called again', async () => {
+                            await expectRevert(wallet.executeTransaction(transactionId, {from: sender}));
+                        });
+                    });
+
+                    context('not executed', async () => {
+                        let transactionId;
+                        let confirmations;
+
+                        beforeEach(async () => {
+                            await wallet.submitTransaction(receiver, value, [], {from: sender});
+                            transactionId = await wallet.transactionId();
+
+                            confirmations = 1;
+
+                            for (let i = 1; i < spec.owners.length && confirmations < spec.requirement - 1; i++) {
+                                await wallet.confirmTransaction(transactionId, {from: spec.owners[i]});
+                                confirmations++;
+
+                                assert.equal(await isConfirmedBy(transactionId, spec.owners[i]), true);
+                                assert.equal(await isExecuted(transactionId), confirmations == spec.requirement);
+                            }
+
+                            assert.equal(web3.eth.getBalance(wallet.address).toNumber(), initETHBalance);
+                            assert.equal(web3.eth.getBalance(receiver).toNumber(), receiverBalance);
+                            assert.equal(await wallet.isConfirmed(transactionId), false);
+                            assert.equal(await isExecuted(transactionId), false);
+                        });
+
+                        context('not confirmed', async () => {
+                            beforeEach(async () => {
+                                assert.equal(await wallet.isConfirmed(transactionId), false);
+                            });
+
+                            it('should be executed automatically, once final confirmation is received', async () => {
+                                await wallet.confirmTransaction(transactionId, {from: spec.owners[confirmations]});
+
+                                assert.equal(web3.eth.getBalance(wallet.address).toNumber(), initETHBalance - value);
+                                assert.equal(web3.eth.getBalance(receiver).toNumber(), receiverBalance + value);
+                                assert.equal(await wallet.isConfirmed(transactionId), true);
+                                assert.equal(await isExecuted(transactionId), true);
+                            });
+
+                            it('should fail gracefully, if called by a confirmed owner', async () => {
+                                assert.equal(await isConfirmedBy(transactionId, sender), true);
+                                await wallet.executeTransaction(transactionId, {from: sender});
+
+                                assert.equal(web3.eth.getBalance(wallet.address).toNumber(), initETHBalance);
+                                assert.equal(web3.eth.getBalance(receiver).toNumber(), receiverBalance);
+
+                                assert.equal(await isExecuted(transactionId), false);
+                            });
+
+                            it('should throw, if called by a non-confirmed owner', async () => {
+                                const notConfirmer = spec.owners[spec.owners.length - 1];
+                                assert.equal(await isConfirmedBy(transactionId, notConfirmer), false);
+
+                                await expectRevert(wallet.executeTransaction(transactionId, {from: notConfirmer}));
+                            });
+                        });
+
+                        context('confirmed', async () => {
+                            beforeEach(async () => {
+                                // Make sure that the final confirmation will triggered a failing transaction, for
+                                // example by ensuring there won't be enough ETH left.
+                                await wallet.submitTransaction(receiver, initETHBalance, [], {from: sender});
+                                let transactionId2 = await wallet.transactionId();
+
+                                let confirmations2 = 1;
+
+                                for (let i = 1; i < spec.owners.length && confirmations2 < spec.requirement; i++) {
+                                    await wallet.confirmTransaction(transactionId2, {from: spec.owners[i]});
+                                    confirmations2++;
+
+                                    assert.equal(await isConfirmedBy(transactionId2, spec.owners[i]), true);
+                                    assert.equal(await isExecuted(transactionId2), confirmations2 == spec.requirement);
+                                }
+
+                                assert.equal(web3.eth.getBalance(wallet.address).toNumber(), 0);
+
+                                // Sending a final confirmation and even try to explicitly trigger execution of the
+                                // transaction shouldn't mark it as executed, as there is explicitly not enough ETH to
+                                // handle it.
+                                await wallet.confirmTransaction(transactionId, {from: spec.owners[confirmations]});
+                                await wallet.executeTransaction(transactionId, {from: sender});
+
+                                assert.equal(web3.eth.getBalance(wallet.address).toNumber(), 0);
+                                assert.equal(web3.eth.getBalance(receiver).toNumber(), receiverBalance);
+                                assert.equal(await wallet.isConfirmed(transactionId), true);
+                                assert.equal(await isExecuted(transactionId), false);
+
+                                // Transfer ETH back to the wallet, so that the original transaction will succeed.
+                                await web3.eth.sendTransaction({from: sender, to: wallet.address, value: value});
+                                assert.equal(web3.eth.getBalance(wallet.address).toNumber(), value);
+                            });
+
+                            it('should throw an error, if asked to be executed by not an owner', async () => {
+                                await expectRevert(wallet.executeTransaction(transactionId, {from: notOwner}));
+                            });
+
+                            if (spec.requirement < spec.owners.length) {
+                                it('should throw an error, if asked to be executed by an unconfirmed owner', async () => {
+                                    const notConfirmer = spec.owners[spec.owners.length - 1];
+                                    assert.equal(await isConfirmedBy(transactionId, notConfirmer), false);
+
+                                    await expectRevert(wallet.executeTransaction(transactionId, {from: notOwner}));
+                                });
+                            }
+
+                            it('should be executed in a later time', async () => {
+                                await wallet.executeTransaction(transactionId, {from: sender});
+
+                                assert.equal(web3.eth.getBalance(wallet.address).toNumber(), 0);
+                                assert.equal(web3.eth.getBalance(receiver).toNumber(), receiverBalance + value);
+                                assert.equal(await wallet.isConfirmed(transactionId), true);
+                                assert.equal(await isExecuted(transactionId), true);
+                            });
+                        });
+                    });
+                });
+
                 let getBalance = async (address, coin) => {
                     switch (coin) {
                         case 'ETH':
@@ -312,7 +485,7 @@ contract('MultiSigWallet', (accounts) => {
                     }
                 }
 
-                let submitTransaction = async (receiver, value, from, coin) => {
+                const submitTransaction = async (receiver, value, from, coin) => {
                     switch (coin) {
                         case 'ETH':
                             return await wallet.submitTransaction(receiver, value, [], {from: from});
@@ -326,7 +499,7 @@ contract('MultiSigWallet', (accounts) => {
                         default:
                             throw new Error(`Invalid type: ${type}!`);
                     }
-                }
+                };
 
                 [
                     'ETH',
@@ -413,7 +586,7 @@ contract('MultiSigWallet', (accounts) => {
                 });
 
                 describe('addOwner', async () => {
-                    let addOwner = async (owner, from) => {
+                    const addOwner = async (owner, from) => {
                         let params = [owner];
                         let encoded = coder.encodeFunctionCall(MULTISIGWALLET_ABI.addOwner, params);
 
@@ -465,7 +638,7 @@ contract('MultiSigWallet', (accounts) => {
                 });
 
                 describe('removeOwner', async () => {
-                    let removeOwner = async (owner, from) => {
+                    const removeOwner = async (owner, from) => {
                         let params = [owner];
                         let encoded = coder.encodeFunctionCall(MULTISIGWALLET_ABI.removeOwner, params);
 
@@ -523,7 +696,7 @@ contract('MultiSigWallet', (accounts) => {
                 });
 
                 describe('replaceOwner', async () => {
-                    let replaceOwner = async (owner, newOwner, from) => {
+                    const replaceOwner = async (owner, newOwner, from) => {
                         let params = [owner, newOwner];
                         let encoded = coder.encodeFunctionCall(MULTISIGWALLET_ABI.replaceOwner, params);
 
@@ -576,7 +749,7 @@ contract('MultiSigWallet', (accounts) => {
                 });
 
                 describe('changeRequirement', async () => {
-                    let changeRequirement = async (requirement, from) => {
+                    const changeRequirement = async (requirement, from) => {
                         let params = [requirement];
                         let encoded = coder.encodeFunctionCall(MULTISIGWALLET_ABI.changeRequirement, params);
 
