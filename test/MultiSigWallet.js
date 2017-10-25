@@ -414,7 +414,7 @@ contract('MultiSigWallet', (accounts) => {
 
                         context('confirmed', async () => {
                             beforeEach(async () => {
-                                // Make sure that the final confirmation will triggered a failing transaction, for
+                                // Make sure that the final confirmation will trigger a failing transaction, for
                                 // example by ensuring there won't be enough ETH left.
                                 await wallet.submitTransaction(receiver, initETHBalance, [], {from: sender});
                                 let transactionId2 = await wallet.transactionId();
@@ -431,7 +431,7 @@ contract('MultiSigWallet', (accounts) => {
 
                                 assert.equal(web3.eth.getBalance(wallet.address).toNumber(), 0);
 
-                                // Sending a final confirmation and even try to explicitly trigger execution of the
+                                // Sending a final confirmation and even trying to explicitly trigger execution of the
                                 // transaction shouldn't mark it as executed, as there is explicitly not enough ETH to
                                 // handle it.
                                 await wallet.confirmTransaction(transactionId, {from: spec.owners[confirmations]});
@@ -460,7 +460,7 @@ contract('MultiSigWallet', (accounts) => {
                                 });
                             }
 
-                            it('should be executed in a later time', async () => {
+                            it('should be executed successfully when retrying', async () => {
                                 await wallet.executeTransaction(transactionId, {from: sender});
 
                                 assert.equal(web3.eth.getBalance(wallet.address).toNumber(), 0);
