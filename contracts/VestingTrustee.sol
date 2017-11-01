@@ -138,13 +138,13 @@ contract VestingTrustee is Ownable {
         // Calculate amount of installments passed until now.
         //
         // NOTE result gets floored because of integer division.
-        uint256 installmentsPast = _time.sub(_grant.start).div(_grant.installmentLength);
+        uint256 installmentsPassed = _time.sub(_grant.start).div(_grant.installmentLength);
 
         // Calculate amount of days in entire vesting period.
         uint256 vestingDays = _grant.end.sub(_grant.start);
 
         // Calculate and return installments that have passed according to vesting days that have passed.
-        return _grant.value.mul(installmentsPast.mul(_grant.installmentLength)).div(vestingDays);
+        return _grant.value.mul(installmentsPassed.mul(_grant.installmentLength)).div(vestingDays);
     }
 
     /// @dev Unlock vested tokens and transfer them to their holder.
