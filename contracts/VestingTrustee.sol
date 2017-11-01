@@ -167,8 +167,7 @@ contract VestingTrustee is Ownable {
             return;
         }
 
-        // Update transferred and total vesting amount,
-        // then transfer remaining vested funds to holder.
+        // Update transferred and total vesting amount, then transfer remaining vested funds to holder.
         grant.transferred = grant.transferred.add(transferable);
         totalVesting = totalVesting.sub(transferable);
         kin.transfer(msg.sender, transferable);
