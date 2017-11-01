@@ -16,3 +16,4 @@ unify ../contracts/TokenHolder.sol
 unify ../contracts/KinToken.sol
 unify ../contracts/VestingTrustee.sol
 unify ../contracts/KinTokenSale.sol
+unify ../contracts/KinFoundationVestingTrustee.sol
