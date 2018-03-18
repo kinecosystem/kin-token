@@ -7,7 +7,7 @@ const VestingTrustee = artifacts.require('../contracts/VestingTrustee.sol');
 contract('VestingTrustee', (accounts) => {
     const MINUTE = 60;
     const HOUR = 60 * MINUTE;
-    const DAY = 24 * 60;
+    const DAY = 24 * HOUR;
     const MONTH = 30 * DAY;
     const YEAR = 12 * MONTH;
 
