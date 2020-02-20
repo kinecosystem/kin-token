@@ -11,7 +11,7 @@ contract VestingTrustee is Ownable {
     // Kin token contract.
     KinToken public kin;
 
-    // Vesting grant for a speicifc holder.
+    // Vesting grant for a specific holder.
     struct Grant {
         uint256 value;
         uint256 start;
@@ -85,7 +85,7 @@ contract VestingTrustee is Ownable {
         NewGrant(msg.sender, _to, _value);
     }
 
-    /// @dev Revoke the grant of tokens of a specifed address.
+    /// @dev Revoke the grant of tokens of a specified address.
     /// @param _holder The address which will have its tokens revoked.
     function revoke(address _holder) public onlyOwner {
         Grant memory grant = grants[_holder];
@@ -120,7 +120,7 @@ contract VestingTrustee is Ownable {
         return calculateVestedTokens(grant, _time);
     }
 
-    /// @dev Calculate amount of vested tokens at a specifc time.
+    /// @dev Calculate amount of vested tokens at a specific time.
     /// @param _grant Grant The vesting grant.
     /// @param _time uint256 The time to be checked
     /// @return a uint256 Representing the amount of vested tokens of a specific grant.
@@ -135,16 +135,16 @@ contract VestingTrustee is Ownable {
             return _grant.value;
         }
 
-        // Calculate amount of installments past until now.
+        // Calculate amount of installments passed until now.
         //
         // NOTE result gets floored because of integer division.
-        uint256 installmentsPast = _time.sub(_grant.start).div(_grant.installmentLength);
+        uint256 installmentsPassed = _time.sub(_grant.start).div(_grant.installmentLength);
 
         // Calculate amount of days in entire vesting period.
         uint256 vestingDays = _grant.end.sub(_grant.start);
 
         // Calculate and return installments that have passed according to vesting days that have passed.
-        return _grant.value.mul(installmentsPast.mul(_grant.installmentLength)).div(vestingDays);
+        return _grant.value.mul(installmentsPassed.mul(_grant.installmentLength)).div(vestingDays);
     }
 
     /// @dev Unlock vested tokens and transfer them to their holder.
@@ -152,7 +152,7 @@ contract VestingTrustee is Ownable {
     function unlockVestedTokens() external {
         Grant storage grant = grants[msg.sender];
 
-        // Require that there will be funds left in grant to tranfser to holder.
+        // Require that there will be funds left in grant to transfer to holder.
         require(grant.value != 0);
 
         // Get the total amount of vested tokens, acccording to grant.
